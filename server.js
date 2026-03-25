@@ -25,7 +25,7 @@ const SECRET_KEY = 'your-very-secure-secret'; //in production, use environment v
 
 // Enable CORS for frontend
 app.use(cors({
-    origin: ['http://127.0.0.1:5000', 'http://localhost:5000']
+    origin: ['http://127.0.0.1:5500', 'http://localhost:5500']
 }));
 
 // Middleware to parse JSON
@@ -36,13 +36,13 @@ let users = [
     {   
         id: 1, 
         username: 'admin', 
-        password: '$2a$10$...', 
+        password: bcrypt.hashSync('admin123', 10), 
         role: 'admin' 
-    }, // pre-hashed
+    },
     {   
         id: 2, 
         username: 'alice', 
-        password: '$2a$10$...', 
+        password: bcrypt.hashSync('user123', 10), 
         role: 'user' 
     }
 ];
@@ -51,10 +51,10 @@ let users = [
 // console.log(bcrypt.hashSync('admin123', 10)); // Use this to generate real hashes
 
 // Pre-hash known passwords for demo
-if (!users[0].password.includes('$2a$')) {
-    users[0].password = bcrypt.hashSync('admin123', 10);
-    users[1].password = bcrypt.hashSync('user123', 10);
-}
+// if (!users[0].password.includes('$2a$')) {
+//     users[0].password = bcrypt.hashSync('admin123', 10);
+//     users[1].password = bcrypt.hashSync('user123', 10);
+// }
 
 // AUTH ROUTES
 // POST /api/register
@@ -83,6 +83,31 @@ app.post('/api/register', async (req, res) => {
 
   users.push(newUser);
   res.status(201).json({ message: 'User registered', username, role });
+});
+
+app.post('/api/login', async (req, res) => {
+  const { username, password } = req.body;
+
+  const user = users.find(u => u.username === username);
+  if (!user) return res.status(401).json({ error: 'Invalid username' });
+
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) return res.status(401).json({ error: 'Invalid password' });
+
+  const token = jwt.sign(
+    { id: user.id, username: user.username, role: user.role },
+    SECRET_KEY,
+    { expiresIn: '1h' }
+  );
+
+  res.json({
+    token,
+    user: {
+      username: user.username,
+      role: user.role,
+      email: user.username 
+    }
+  });
 });
 
 // ROLE-BASED PROTECTED ROUTE: Admin-only
@@ -131,3 +156,4 @@ app.listen(PORT, () => {
   console.log(`  - Admin: username=admin, password=admin123`);
   console.log(`  - User:  username=alice, password=user123`);
 });
+

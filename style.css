@@ -1,0 +1,51 @@
+.page { display: none; }
+.page.active {
+    display: block;
+    height: 100%; /* take full height of main */
+}
+
+body.not-authenticated .role-logged-in { display: none; }
+body.authenticated .role-logged-out { display: none; }
+
+.role-admin { display: none; }
+body.is-admin .role-admin { display: block; }
+
+#home-page.active {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+}
+
+.profile-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: #0d6efd;
+    color: white;
+    font-size: 28px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-card {
+    border-radius: 12px;
+}
+
+  /* Scrollable Table Container */
+  .table-container {
+    max-height: 300px; /* Adjust height as needed */
+    overflow-y: auto;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+  }
+
+  /* Optional: Keep table header fixed */
+  .table-container thead tr {
+    position: sticky;
+    top: 0;
+    background-color: #f8f9fa;
+    z-index: 1;
+  }
